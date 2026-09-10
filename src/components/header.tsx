@@ -5,11 +5,11 @@ import Link from "next/link";
 import { FaBars, FaXmark } from "react-icons/fa6";
 
 const navLinks = [
-  { href: "#", label: "Home" },
-  { href: "#", label: "About" },
-  { href: "#", label: "Services" },
-  { href: "#", label: "Blog" },
-  { href: "#", label: "Contact" },
+  { href: "/", label: "Home" },
+  { href: "/about", label: "About" },
+  { href: "/services", label: "Services" },
+  { href: "/blog", label: "Blog" },
+  { href: "/contact", label: "Contact" },
 ];
 
 const Header = () => {
