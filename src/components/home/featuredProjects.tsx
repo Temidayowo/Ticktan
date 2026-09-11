@@ -1,25 +1,13 @@
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa6";
-import PlaceholderImage from "../ui/placeholder-image";
+import { projects } from "@/lib/projects";
+import ProjectCard from "../portfolio/projectCard";
 
-const projects = [
-  {
-    name: "Corporate HQ Renovation",
-    scope: "Full office fit-out and interior redesign for a 12,000 sq ft banking headquarters.",
-  },
-  {
-    name: "Tech Campus Build-Out",
-    scope: "Design, construction and project management for a multi-floor tech office space.",
-  },
-  {
-    name: "Retail Bank Branch Fit-Out",
-    scope: "Turnkey branch renovation delivered on an accelerated 8-week timeline.",
-  },
-];
+const featuredProjects = projects.filter((project) => project.featured);
 
 const FeaturedProjects = () => {
   return (
-    <section className="bg-white">
+    <section className="bg-gray-50">
       <div className="px-auto max-w-7xl mx-6 py-16 sm:mx-12 sm:py-20 md:mx-16 md:py-24 lg:mx-32">
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end md:gap-8">
           <div>
@@ -39,19 +27,9 @@ const FeaturedProjects = () => {
           </Link>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map(({ name, scope }) => (
-            <Link
-              key={name}
-              href="/portfolio"
-              className="group flex flex-col gap-4"
-            >
-              <PlaceholderImage className="aspect-4/3 w-full rounded-2xl transition-opacity group-hover:opacity-80" />
-              <div className="flex flex-col gap-2">
-                <h3 className="text-lg font-bold text-navy">{name}</h3>
-                <p className="text-sm text-muted-foreground">{scope}</p>
-              </div>
-            </Link>
+        <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
+          {featuredProjects.map((project) => (
+            <ProjectCard key={project.slug} project={project} />
           ))}
         </div>
       </div>

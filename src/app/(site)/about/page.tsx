@@ -3,6 +3,7 @@ import PageHeader from "@/components/about/pageHeader";
 import CompanyStory from "@/components/about/companyStory";
 import VisionMission from "@/components/about/visionMission";
 import CoreValues from "@/components/about/coreValues";
+import Team from "@/components/about/team";
 import Philosophy from "@/components/about/philosophy";
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default function About() {
       <CompanyStory />
       <VisionMission />
       <CoreValues />
+      <Team />
       <Philosophy />
     </>
   );

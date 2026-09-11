@@ -43,14 +43,16 @@ const CoreValues = () => {
           {values.map(({ icon: Icon, title, description }) => (
             <div
               key={title}
-              className="flex flex-col gap-4 rounded-2xl bg-muted p-6"
+              className="group flex flex-col gap-4 rounded-2xl border-[0.5px] border-border bg-gray-50 p-6 transition-colors duration-300 hover:bg-navy hover:shadow-sm"
             >
-              <span className="flex size-10 items-center justify-center rounded-xl bg-navy text-white">
+              <span className="flex size-10 items-center justify-center rounded-xl bg-white text-navy transition-colors duration-300 group-hover:bg-coral group-hover:text-white">
                 <Icon className="size-4" />
               </span>
               <div className="flex flex-col gap-2">
-                <h3 className="text-base font-bold text-navy">{title}</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="text-base font-bold text-navy transition-colors duration-300 group-hover:text-white">
+                  {title}
+                </h3>
+                <p className="text-sm text-muted-foreground transition-colors duration-300 group-hover:text-white/70">
                   {description}
                 </p>
               </div>

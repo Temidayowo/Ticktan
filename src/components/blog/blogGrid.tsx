@@ -37,17 +37,17 @@ const posts = [
 
 const BlogGrid = () => {
   return (
-    <section className="bg-white">
+    <section className="bg-gray-50">
       <div className="px-auto max-w-7xl mx-6 py-16 sm:mx-12 sm:py-20 md:mx-16 md:py-24 lg:mx-32">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {posts.map(({ title, category, date }) => (
             <Link
               key={title}
               href="/blog"
-              className="group flex flex-col gap-4"
+              className="group flex flex-col gap-4 overflow-hidden rounded-2xl bg-white shadow-sm"
             >
-              <PlaceholderImage className="aspect-video w-full rounded-2xl transition-opacity group-hover:opacity-80" />
-              <div className="flex flex-col gap-2">
+              <PlaceholderImage className="aspect-video w-full transition-opacity group-hover:opacity-80" />
+              <div className="flex flex-col gap-2 p-6 pt-0">
                 <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-coral">
                   <FaTag className="size-3" />
                   {category}

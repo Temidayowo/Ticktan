@@ -31,7 +31,7 @@ const services = [
 
 const WhatWeDo = () => {
   return (
-    <section>
+    <section className="bg-white">
       <div className="px-auto max-w-7xl mx-6 py-24 sm:mx-12 sm:py-28 md:mx-16 md:py-24 lg:mx-32">
         <p className="text-sm font-semibold uppercase tracking-wider text-coral">
           What We Do
@@ -58,14 +58,18 @@ const WhatWeDo = () => {
           {services.map(({ letter, title, description }) => (
             <div
               key={title}
-              className="flex flex-col gap-4 rounded-2xl border border-border bg-white p-6 shadow-sm"
+              className="group flex flex-col gap-4 rounded-2xl border-[0.5px] border-border bg-gray-50 p-6 hover:shadow-sm transition-colors duration-300 hover:bg-navy"
             >
-              <span className="flex size-10 items-center justify-center rounded-xl bg-navy text-lg font-bold text-white">
+              <span className="flex size-10 items-center justify-center rounded-xl bg-white text-lg font-bold text-navy transition-colors duration-300 group-hover:bg-coral group-hover:text-white">
                 {letter}
               </span>
               <div className="flex flex-col gap-2">
-                <h3 className="text-base font-bold text-navy">{title}</h3>
-                <p className="text-sm text-muted-foreground">{description}</p>
+                <h3 className="text-base font-bold text-navy transition-colors duration-300 group-hover:text-white">
+                  {title}
+                </h3>
+                <p className="text-sm text-muted-foreground transition-colors duration-300 group-hover:text-white/70">
+                  {description}
+                </p>
               </div>
             </div>
           ))}

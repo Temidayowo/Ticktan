@@ -40,14 +40,18 @@ const Process = () => {
           {steps.map(({ number, title, description }) => (
             <div
               key={number}
-              className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm"
+              className="group flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm transition-colors duration-300 hover:bg-navy"
             >
               <span className="font-sora text-3xl font-bold text-coral">
                 {number}
               </span>
               <div className="flex flex-col gap-2">
-                <h3 className="text-base font-bold text-navy">{title}</h3>
-                <p className="text-sm text-muted-foreground">{description}</p>
+                <h3 className="text-base font-bold text-navy transition-colors duration-300 group-hover:text-white">
+                  {title}
+                </h3>
+                <p className="text-sm text-muted-foreground transition-colors duration-300 group-hover:text-white/70">
+                  {description}
+                </p>
               </div>
             </div>
           ))}

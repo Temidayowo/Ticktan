@@ -2,14 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { FaBars, FaXmark } from "react-icons/fa6";
+import { FaArrowRight, FaBars, FaBuilding, FaXmark } from "react-icons/fa6";
 
 const navLinks = [
-  { href: "/", label: "Home" },
   { href: "/about", label: "About" },
   { href: "/services", label: "Services" },
+  { href: "/portfolio", label: "Portfolio" },
   { href: "/blog", label: "Blog" },
-  { href: "/contact", label: "Contact" },
 ];
 
 const Header = () => {
@@ -23,8 +22,11 @@ const Header = () => {
       <div className="flex items-center justify-between">
         <Link
           href="/"
-          className="font-sora text-2xl font-bold text-white md:text-3xl"
+          className="flex items-center gap-2.5 font-sora text-2xl font-bold text-white md:text-3xl"
         >
+          <span className="flex size-9 items-center justify-center rounded-lg bg-coral text-white">
+            <FaBuilding className="size-4.5" />
+          </span>
           Ticktan
         </Link>
 
@@ -38,6 +40,19 @@ const Header = () => {
             </Link>
           ))}
         </nav>
+
+        <div className="hidden items-center gap-7 md:flex">
+          <Link href="/contact" className={animatedLinkClasses}>
+            Contact
+          </Link>
+          <Link
+            href="/get-a-quote"
+            className="group inline-flex items-center gap-2 rounded-xl bg-coral px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-coral/80"
+          >
+            Get a Quote
+            <FaArrowRight className="size-3.5 shrink-0 transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
 
         <button
           type="button"
@@ -61,16 +76,26 @@ const Header = () => {
         aria-label="Mobile navigation"
       >
         <div className="flex flex-col gap-5 overflow-hidden">
-          {navLinks.map(({ href, label }) => (
-            <Link
-              key={label}
-              href={href}
-              className="text-lg"
-              onClick={() => setOpen(false)}
-            >
-              {label}
-            </Link>
-          ))}
+          {[...navLinks, { href: "/contact", label: "Contact" }].map(
+            ({ href, label }) => (
+              <Link
+                key={label}
+                href={href}
+                className="text-lg"
+                onClick={() => setOpen(false)}
+              >
+                {label}
+              </Link>
+            )
+          )}
+          <Link
+            href="/get-a-quote"
+            className="inline-flex w-fit items-center gap-2 rounded-xl bg-coral px-5 py-2.5 text-sm font-semibold text-white"
+            onClick={() => setOpen(false)}
+          >
+            Get a Quote
+            <FaArrowRight className="size-3.5 shrink-0" />
+          </Link>
         </div>
       </nav>
     </header>
