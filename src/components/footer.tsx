@@ -1,11 +1,13 @@
 import Link from "next/link";
 import {
   FaEnvelope,
+  FaFacebookF,
   FaInstagram,
   FaLinkedinIn,
   FaLocationDot,
   FaXTwitter,
 } from "react-icons/fa6";
+import { getSiteSettings } from "@/lib/data/settings";
 
 const companyLinks = [
   { href: "/about", label: "About" },
@@ -15,14 +17,19 @@ const companyLinks = [
   { href: "/blog", label: "Blog" },
 ];
 
-const socialLinks = [
-  { href: "#", label: "X (Twitter)", icon: FaXTwitter },
-  { href: "#", label: "LinkedIn", icon: FaLinkedinIn },
-  { href: "#", label: "Instagram", icon: FaInstagram },
-];
-
-const Footer = () => {
+const Footer = async () => {
   const year = new Date().getFullYear();
+  const settings = await getSiteSettings();
+
+  const socialLinks = [
+    { href: settings.twitterUrl, label: "X (Twitter)", icon: FaXTwitter },
+    { href: settings.linkedinUrl, label: "LinkedIn", icon: FaLinkedinIn },
+    { href: settings.instagramUrl, label: "Instagram", icon: FaInstagram },
+    { href: settings.facebookUrl, label: "Facebook", icon: FaFacebookF },
+  ].filter(
+    (link): link is { href: string; label: string; icon: typeof FaXTwitter } =>
+      Boolean(link.href)
+  );
 
   return (
     <footer className="bg-navy">
@@ -36,18 +43,22 @@ const Footer = () => {
               Design, construction and project management, delivered with
               precision, transparency and craftsmanship.
             </p>
-            <div className="flex gap-4 pt-2">
-              {socialLinks.map(({ href, label, icon: Icon }) => (
-                <Link
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  className="flex size-9 items-center justify-center rounded-full border border-white/20 text-white transition-colors hover:border-coral hover:bg-coral"
-                >
-                  <Icon className="size-4" />
-                </Link>
-              ))}
-            </div>
+            {socialLinks.length > 0 && (
+              <div className="flex gap-4 pt-2">
+                {socialLinks.map(({ href, label, icon: Icon }) => (
+                  <Link
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="flex size-9 items-center justify-center rounded-full border border-white/20 text-white transition-colors hover:border-coral hover:bg-coral"
+                  >
+                    <Icon className="size-4" />
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col gap-4">
@@ -75,19 +86,23 @@ const Footer = () => {
               Get in touch
             </h3>
             <ul className="flex flex-col gap-3">
-              <li className="flex items-start gap-3 text-sm text-white/80">
-                <FaLocationDot className="mt-0.5 size-4 shrink-0 text-coral" />
-                Lagos, Nigeria
-              </li>
-              <li className="flex items-start gap-3 text-sm text-white/80">
-                <FaEnvelope className="mt-0.5 size-4 shrink-0 text-coral" />
-                <a
-                  href="mailto:info@ticktan.com"
-                  className="transition-colors hover:text-coral"
-                >
-                  info@ticktan.com
-                </a>
-              </li>
+              {settings.contactAddress && (
+                <li className="flex items-start gap-3 text-sm text-white/80">
+                  <FaLocationDot className="mt-0.5 size-4 shrink-0 text-coral" />
+                  {settings.contactAddress}
+                </li>
+              )}
+              {settings.contactEmail && (
+                <li className="flex items-start gap-3 text-sm text-white/80">
+                  <FaEnvelope className="mt-0.5 size-4 shrink-0 text-coral" />
+                  <a
+                    href={`mailto:${settings.contactEmail}`}
+                    className="transition-colors hover:text-coral"
+                  >
+                    {settings.contactEmail}
+                  </a>
+                </li>
+              )}
             </ul>
             <Link
               href="/get-a-quote"

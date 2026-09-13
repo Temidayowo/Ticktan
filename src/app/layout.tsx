@@ -33,9 +33,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${playfairDisplay.variable} ${sora.variable} h-full antialiased`}
+      className={`${inter.variable} ${playfairDisplay.variable} ${sora.variable} h-full overflow-x-hidden antialiased`}
     >
-      <body className={`${inter.className} font-sans min-h-full flex flex-col`}>
+      <body
+        className={`${inter.className} font-sans min-h-full flex flex-col overflow-x-hidden`}
+      >
         {children}
       </body>
     </html>

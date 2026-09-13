@@ -1,32 +1,40 @@
 import { FaEnvelope, FaLocationDot, FaPhone, FaRegClock } from "react-icons/fa6";
 import ContactForm from "./contactForm";
+import { getSiteSettings } from "@/lib/data/settings";
 
-const contactDetails = [
-  {
-    icon: FaLocationDot,
-    label: "Office",
-    value: "Lagos, Nigeria",
-  },
-  {
-    icon: FaEnvelope,
-    label: "Email",
-    value: "info@ticktan.com",
-    href: "mailto:info@ticktan.com",
-  },
-  {
-    icon: FaPhone,
-    label: "Phone",
-    value: "+234 000 000 0000",
-    href: "tel:+2340000000000",
-  },
-  {
-    icon: FaRegClock,
-    label: "Hours",
-    value: "Mon – Fri, 9am – 5pm",
-  },
-];
+const ContactSection = async () => {
+  const settings = await getSiteSettings();
 
-const ContactSection = () => {
+  const contactDetails = [
+    settings.contactAddress && {
+      icon: FaLocationDot,
+      label: "Office",
+      value: settings.contactAddress,
+    },
+    settings.contactEmail && {
+      icon: FaEnvelope,
+      label: "Email",
+      value: settings.contactEmail,
+      href: `mailto:${settings.contactEmail}`,
+    },
+    settings.contactPhone && {
+      icon: FaPhone,
+      label: "Phone",
+      value: settings.contactPhone,
+      href: `tel:${settings.contactPhone.replace(/[^\d+]/g, "")}`,
+    },
+    {
+      icon: FaRegClock,
+      label: "Hours",
+      value: "Mon – Fri, 9am – 5pm",
+    },
+  ].filter(Boolean) as {
+    icon: typeof FaLocationDot;
+    label: string;
+    value: string;
+    href?: string;
+  }[];
+
   return (
     <section className="bg-white">
       <div className="px-auto max-w-7xl mx-6 py-16 sm:mx-12 sm:py-20 md:mx-16 md:py-24 lg:mx-32">
@@ -73,7 +81,7 @@ const ContactSection = () => {
             </ul>
           </div>
 
-          <div className="rounded-2xl bg-muted p-6 md:col-span-3 md:p-10">
+          <div className="rounded-2xl bg-gray-50 p-6 md:col-span-3 md:p-10">
             <ContactForm />
           </div>
         </div>

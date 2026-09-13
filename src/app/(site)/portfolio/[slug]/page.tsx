@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getProjectBySlug, projects } from "@/lib/projects";
+import { getProjectBySlug, getProjects } from "@/lib/data/projects";
 import PlaceholderImage from "@/components/ui/placeholder-image";
 import ProjectHeader from "@/components/portfolio/projectHeader";
 import ProjectCard from "@/components/portfolio/projectCard";
 import CtaBanner from "@/components/home/ctaBanner";
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const projects = await getProjects();
   return projects.map((project) => ({ slug: project.slug }));
 }
 
@@ -18,7 +20,7 @@ export async function generateMetadata({
   params,
 }: ProjectPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const project = getProjectBySlug(slug);
+  const project = await getProjectBySlug(slug);
 
   if (!project) {
     return {};
@@ -32,15 +34,23 @@ export async function generateMetadata({
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
   const { slug } = await params;
-  const project = getProjectBySlug(slug);
+  const project = await getProjectBySlug(slug);
 
   if (!project) {
     notFound();
   }
 
-  const relatedProjects = projects
+  const descriptionParagraphs = project.description
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+
+  const allProjects = await getProjects();
+  const relatedProjects = allProjects
     .filter((p) => p.slug !== project.slug)
     .slice(0, 3);
+
+  const galleryImages = project.images.slice(0, 3);
 
   return (
     <>
@@ -49,9 +59,29 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       <section className="bg-white">
         <div className="px-auto max-w-7xl mx-6 py-16 sm:mx-12 sm:py-20 md:mx-16 md:py-24 lg:mx-32">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <PlaceholderImage className="aspect-4/3 w-full rounded-2xl sm:col-span-2" />
-            <PlaceholderImage className="aspect-4/3 w-full rounded-2xl" />
-            <PlaceholderImage className="aspect-4/3 w-full rounded-2xl" />
+            {galleryImages.length > 0 ? (
+              galleryImages.map((image, index) => (
+                <div
+                  key={image.id}
+                  className={`relative aspect-4/3 w-full overflow-hidden rounded-2xl ${
+                    index === 0 ? "sm:col-span-2" : ""
+                  }`}
+                >
+                  <Image
+                    src={image.url}
+                    alt={project.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ))
+            ) : (
+              <>
+                <PlaceholderImage className="aspect-4/3 w-full rounded-2xl sm:col-span-2" />
+                <PlaceholderImage className="aspect-4/3 w-full rounded-2xl" />
+                <PlaceholderImage className="aspect-4/3 w-full rounded-2xl" />
+              </>
+            )}
           </div>
 
           <div className="mt-16 grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-16">
@@ -59,9 +89,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
               <h2 className="text-2xl font-extrabold text-navy md:text-3xl">
                 Project overview
               </h2>
-              {project.description.map((paragraph) => (
+              {descriptionParagraphs.map((paragraph, index) => (
                 <p
-                  key={paragraph}
+                  key={index}
                   className="text-sm leading-relaxed text-muted-foreground md:text-base"
                 >
                   {paragraph}
@@ -99,18 +129,20 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         </div>
       </section>
 
-      <section className="bg-gray-50">
-        <div className="px-auto max-w-7xl mx-6 py-16 sm:mx-12 sm:py-20 md:mx-16 md:py-24 lg:mx-32">
-          <h2 className="text-2xl font-extrabold text-navy md:text-3xl">
-            More projects
-          </h2>
-          <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-            {relatedProjects.map((related) => (
-              <ProjectCard key={related.slug} project={related} />
-            ))}
+      {relatedProjects.length > 0 && (
+        <section className="bg-gray-50">
+          <div className="px-auto max-w-7xl mx-6 py-16 sm:mx-12 sm:py-20 md:mx-16 md:py-24 lg:mx-32">
+            <h2 className="text-2xl font-extrabold text-navy md:text-3xl">
+              More projects
+            </h2>
+            <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+              {relatedProjects.map((related) => (
+                <ProjectCard key={related.slug} project={related} />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <CtaBanner />
     </>

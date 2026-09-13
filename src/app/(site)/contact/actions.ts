@@ -1,5 +1,7 @@
 "use server";
 
+import { prisma } from "@/lib/prisma";
+
 export type ContactFormState = {
   status: "idle" | "success" | "error";
   message: string;
@@ -21,6 +23,17 @@ export async function submitContactForm(
 
   if (!emailPattern.test(email)) {
     return { status: "error", message: "Please enter a valid email address." };
+  }
+
+  try {
+    await prisma.contactMessage.create({
+      data: { name, email, message },
+    });
+  } catch {
+    return {
+      status: "error",
+      message: "Something went wrong sending your message. Please try again.",
+    };
   }
 
   return {

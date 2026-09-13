@@ -1,23 +1,23 @@
+import Image from "next/image";
 import Link from "next/link";
 import { FaArrowRight, FaRegCalendar } from "react-icons/fa6";
 import PlaceholderImage from "../ui/placeholder-image";
+import { getRecentPublishedPosts } from "@/lib/data/posts";
 
-const posts = [
-  {
-    title: "5 things to check before signing an office fit-out contract",
-    date: "August 12, 2026",
-  },
-  {
-    title: "How we deliver bank branch renovations without downtime",
-    date: "July 28, 2026",
-  },
-  {
-    title: "Budgeting for a commercial build: what actually drives cost",
-    date: "July 9, 2026",
-  },
-];
+const formatDate = (date: Date) =>
+  new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
 
-const BlogPreview = () => {
+const BlogPreview = async () => {
+  const posts = await getRecentPublishedPosts(3);
+
+  if (posts.length === 0) {
+    return null;
+  }
+
   return (
     <section className="bg-gray-50">
       <div className="px-auto max-w-7xl mx-6 py-16 sm:mx-12 sm:py-20 md:mx-16 md:py-24 lg:mx-32">
@@ -40,19 +40,32 @@ const BlogPreview = () => {
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {posts.map(({ title, date }) => (
+          {posts.map((post) => (
             <Link
-              key={title}
-              href="/blog"
+              key={post.id}
+              href={`/blog/${post.slug}`}
               className="group flex flex-col gap-4 overflow-hidden rounded-2xl bg-white shadow-sm"
             >
-              <PlaceholderImage className="aspect-video w-full transition-opacity group-hover:opacity-80" />
+              {post.coverImageUrl ? (
+                <div className="relative aspect-video w-full overflow-hidden">
+                  <Image
+                    src={post.coverImageUrl}
+                    alt={post.title}
+                    fill
+                    className="object-cover transition-opacity group-hover:opacity-80"
+                  />
+                </div>
+              ) : (
+                <PlaceholderImage className="aspect-video w-full transition-opacity group-hover:opacity-80" />
+              )}
               <div className="flex flex-col gap-2 p-6 pt-0">
                 <span className="flex items-center gap-2 text-sm text-muted-foreground">
                   <FaRegCalendar className="size-3.5" />
-                  {date}
+                  {formatDate(post.publishedAt ?? post.createdAt)}
                 </span>
-                <h3 className="text-base font-bold text-navy">{title}</h3>
+                <h3 className="text-base font-bold text-navy">
+                  {post.title}
+                </h3>
               </div>
             </Link>
           ))}

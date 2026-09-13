@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PageHeader from "@/components/services/pageHeader";
+import ServicesNav from "@/components/services/servicesNav";
 import ServicesList from "@/components/services/servicesList";
 import Process from "@/components/services/process";
 import CtaBanner from "@/components/home/ctaBanner";
@@ -14,6 +15,7 @@ export default function Services() {
   return (
     <>
       <PageHeader />
+      <ServicesNav />
       <ServicesList />
       <Process />
       <CtaBanner />

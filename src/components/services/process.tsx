@@ -27,7 +27,7 @@ const steps = [
 
 const Process = () => {
   return (
-    <section className="bg-muted">
+    <section className="bg-gray-50">
       <div className="px-auto max-w-7xl mx-6 py-16 sm:mx-12 sm:py-20 md:mx-16 md:py-24 lg:mx-32">
         <p className="text-sm font-semibold uppercase tracking-wider text-coral">
           How We Work

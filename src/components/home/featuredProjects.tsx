@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa6";
-import { projects } from "@/lib/projects";
+import { getFeaturedProjects } from "@/lib/data/projects";
 import ProjectCard from "../portfolio/projectCard";
 
-const featuredProjects = projects.filter((project) => project.featured);
+const FeaturedProjects = async () => {
+  const featuredProjects = await getFeaturedProjects();
 
-const FeaturedProjects = () => {
+  if (featuredProjects.length === 0) {
+    return null;
+  }
+
   return (
     <section className="bg-gray-50">
       <div className="px-auto max-w-7xl mx-6 py-16 sm:mx-12 sm:py-20 md:mx-16 md:py-24 lg:mx-32">

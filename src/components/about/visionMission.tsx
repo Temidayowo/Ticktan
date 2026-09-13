@@ -1,6 +1,6 @@
 const VisionMission = () => {
   return (
-    <section className="bg-muted">
+    <section className="bg-gray-50">
       <div className="px-auto max-w-7xl mx-6 py-16 sm:mx-12 sm:py-20 md:mx-16 md:py-24 lg:mx-32">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="flex flex-col gap-4 rounded-2xl bg-navy p-8 md:p-10">

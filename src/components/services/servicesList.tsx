@@ -9,6 +9,7 @@ import PlaceholderImage from "../ui/placeholder-image";
 
 const services = [
   {
+    id: "design-consultancy",
     icon: FaCompassDrafting,
     title: "Design Consultancy",
     description:
@@ -20,6 +21,7 @@ const services = [
     ],
   },
   {
+    id: "building-construction",
     icon: FaHelmetSafety,
     title: "Building Construction",
     description:
@@ -31,6 +33,7 @@ const services = [
     ],
   },
   {
+    id: "project-management",
     icon: FaClipboardList,
     title: "Project Management",
     description:
@@ -42,6 +45,7 @@ const services = [
     ],
   },
   {
+    id: "costing",
     icon: FaCalculator,
     title: "Costing",
     description:
@@ -53,6 +57,7 @@ const services = [
     ],
   },
   {
+    id: "art",
     icon: FaPalette,
     title: "Art",
     description:
@@ -70,9 +75,11 @@ const ServicesList = () => {
     <section className="bg-white">
       <div className="px-auto max-w-7xl mx-6 py-16 sm:mx-12 sm:py-20 md:mx-16 md:py-24 lg:mx-32">
         <div className="flex flex-col gap-16 md:gap-20">
-          {services.map(({ icon: Icon, title, description, points }, index) => (
+          {services.map(({ id, icon: Icon, title, description, points }, index) => (
             <div
               key={title}
+              id={id}
+              style={{ scrollMarginTop: "var(--services-nav-offset, 10rem)" }}
               className={`grid grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-16 ${
                 index % 2 === 1 ? "md:[&>*:first-child]:order-2" : ""
               }`}

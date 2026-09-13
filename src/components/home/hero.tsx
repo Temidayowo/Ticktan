@@ -11,7 +11,7 @@ const stats = [
 
 const Hero = () => {
   return (
-    <section className="relative isolate flex min-h-screen w-full items-center overflow-hidden md:min-h-[37.5rem]">
+    <section className="relative isolate flex min-h-screen w-full items-center overflow-hidden md:min-h-150">
       <Image
         src="/image/home-hero.jpg"
         alt="Background description"

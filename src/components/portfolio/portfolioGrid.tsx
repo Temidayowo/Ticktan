@@ -1,13 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { projects, projectTags } from "@/lib/projects";
+import type { ProjectWithImages } from "@/lib/data/projects";
 import ProjectCard from "./projectCard";
 
-const filters = ["All", ...projectTags];
+type PortfolioGridProps = {
+  projects: ProjectWithImages[];
+  tags: string[];
+};
 
-const PortfolioGrid = () => {
+const PortfolioGrid = ({ projects, tags }: PortfolioGridProps) => {
   const [active, setActive] = useState("All");
+  const filters = ["All", ...tags];
 
   const filtered =
     active === "All"
@@ -34,11 +38,17 @@ const PortfolioGrid = () => {
           ))}
         </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((project) => (
-            <ProjectCard key={project.slug} project={project} />
-          ))}
-        </div>
+        {filtered.length === 0 ? (
+          <p className="mt-10 text-center text-muted-foreground">
+            No projects in this category yet.
+          </p>
+        ) : (
+          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((project) => (
+              <ProjectCard key={project.slug} project={project} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

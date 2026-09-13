@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FaArrowRight, FaBars, FaBuilding, FaXmark } from "react-icons/fa6";
 
 const navLinks = [
+  {href: "/", label: "Home"},
   { href: "/about", label: "About" },
   { href: "/services", label: "Services" },
   { href: "/portfolio", label: "Portfolio" },

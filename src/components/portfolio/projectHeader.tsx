@@ -1,14 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FaArrowLeft } from "react-icons/fa6";
-import type { Project } from "@/lib/projects";
+import type { ProjectWithImages } from "@/lib/data/projects";
 
-const ProjectHeader = ({ project }: { project: Project }) => {
+const ProjectHeader = ({ project }: { project: ProjectWithImages }) => {
+  const backgroundImage = project.images[0]?.url ?? "/image/home-hero.jpg";
+
   return (
     <section className="relative isolate flex w-full items-center overflow-hidden">
       <Image
-        src="/image/home-hero.jpg"
-        alt="Background description"
+        src={backgroundImage}
+        alt={project.name}
         fill
         className="-z-10 object-cover"
         priority
