@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { sendContactConfirmationEmail } from "@/lib/email";
 
 export type ContactFormState = {
   status: "idle" | "success" | "error";
@@ -35,6 +36,10 @@ export async function submitContactForm(
       message: "Something went wrong sending your message. Please try again.",
     };
   }
+
+  // Best-effort — the message is already saved, so a flaky email provider
+  // shouldn't turn a successful submission into an error for the visitor.
+  await sendContactConfirmationEmail({ name, email, message });
 
   return {
     status: "success",

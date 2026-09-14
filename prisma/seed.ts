@@ -1,10 +1,69 @@
 import "dotenv/config";
 import bcrypt from "bcryptjs";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
+
+const r2Configured = Boolean(
+  process.env.R2_ACCOUNT_ID &&
+    process.env.R2_ACCESS_KEY_ID &&
+    process.env.R2_SECRET_ACCESS_KEY &&
+    process.env.R2_BUCKET_NAME &&
+    process.env.R2_PUBLIC_URL
+);
+
+const r2 = r2Configured
+  ? new S3Client({
+      region: "auto",
+      endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+      },
+    })
+  : null;
+
+/**
+ * Downloads a placeholder photo and uploads it to R2 under `key`, returning
+ * its public URL. Real content — swap these out via the admin dashboard once
+ * actual project/team photos are available. Returns null (leaving the field
+ * empty, same as before) if R2 isn't configured or the fetch fails, so
+ * `prisma db seed` still works without R2 credentials.
+ */
+async function fetchAndUploadImage(
+  sourceUrl: string,
+  key: string
+): Promise<string | null> {
+  if (!r2) return null;
+
+  try {
+    const response = await fetch(sourceUrl);
+    if (!response.ok) {
+      console.warn(`  ! image fetch failed (${response.status}): ${sourceUrl}`);
+      return null;
+    }
+
+    const buffer = Buffer.from(await response.arrayBuffer());
+    const contentType = response.headers.get("content-type") ?? "image/jpeg";
+
+    await r2.send(
+      new PutObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME!,
+        Key: key,
+        Body: buffer,
+        ContentType: contentType,
+      })
+    );
+
+    return `${process.env.R2_PUBLIC_URL}/${key}`;
+  } catch (error) {
+    console.warn(`  ! image upload failed for ${key}:`, error);
+    return null;
+  }
+}
 
 const projects = [
   {
@@ -113,6 +172,20 @@ const projects = [
   },
 ];
 
+// Curated picsum.photos IDs (visually reviewed — architecture/city/workspace
+// shots) rather than picsum's random per-seed lottery, which just as often
+// returns forests, dogs, or food for an arbitrary seed string.
+const projectImageIds: Record<string, [number, number]> = {
+  "corporate-hq-renovation": [1048, 1031],
+  "tech-campus-build-out": [1076, 1081],
+  "retail-bank-branch-fit-out": [1029, 1074],
+  "community-health-centre": [1029, 1074],
+  "harborview-trading-floor": [1031, 1048],
+  "coastline-capital-headquarters": [1081, 1076],
+  "nova-industries-showroom": [1074, 1029],
+  "civic-arts-pavilion": [180, 201],
+};
+
 const teamMembers = [
   {
     name: "Adaeze Okafor",
@@ -120,6 +193,7 @@ const teamMembers = [
     experience: "18 years",
     credentials: "NIA, RIBA",
     order: 0,
+    pravatarImg: 47,
   },
   {
     name: "Chinedu Umeh",
@@ -127,6 +201,7 @@ const teamMembers = [
     experience: "15 years",
     credentials: "COREN",
     order: 1,
+    pravatarImg: 12,
   },
   {
     name: "Folake Adeyemi",
@@ -134,6 +209,7 @@ const teamMembers = [
     experience: "12 years",
     credentials: "PMP",
     order: 2,
+    pravatarImg: 44,
   },
   {
     name: "Tunde Bakare",
@@ -141,6 +217,7 @@ const teamMembers = [
     experience: "10 years",
     credentials: "NIQS",
     order: 3,
+    pravatarImg: 33,
   },
 ];
 
@@ -201,7 +278,22 @@ const posts = [
   },
 ];
 
+const postCoverIds: Record<string, number> = {
+  "5-things-to-check-before-signing-an-office-fit-out-contract": 1048,
+  "how-we-deliver-bank-branch-renovations-without-downtime": 1076,
+  "budgeting-for-a-commercial-build-what-actually-drives-cost": 180,
+  "designing-offices-that-hold-up-after-the-fit-out-photos-fade": 1081,
+  "what-a-project-manager-actually-does-on-a-corporate-build": 201,
+  "when-bespoke-art-is-worth-it-in-a-commercial-space": 1074,
+};
+
 async function main() {
+  if (!r2Configured) {
+    console.log(
+      "R2 env vars not set — seeding without images (posts/projects/team will have no photos)."
+    );
+  }
+
   const adminEmail = process.env.ADMIN_EMAIL ?? "admin@ticktan.com";
   const adminPassword = process.env.ADMIN_PASSWORD ?? "ChangeMe123!";
   const passwordHash = await bcrypt.hash(adminPassword, 10);
@@ -231,10 +323,31 @@ async function main() {
   });
 
   for (const project of projects) {
-    await prisma.project.upsert({
+    const existing = await prisma.project.findUnique({
       where: { slug: project.slug },
-      update: {},
-      create: project,
+    });
+    if (existing) continue;
+
+    console.log(`Uploading photos for project: ${project.name}`);
+    const ids = projectImageIds[project.slug] ?? [1048, 1031];
+    const imageUrls = (
+      await Promise.all(
+        ids.map((picsumId, n) =>
+          fetchAndUploadImage(
+            `https://picsum.photos/id/${picsumId}/1200/800`,
+            `seed/projects/${project.slug}-${n + 1}.jpg`
+          )
+        )
+      )
+    ).filter((url): url is string => Boolean(url));
+
+    await prisma.project.create({
+      data: {
+        ...project,
+        images: {
+          create: imageUrls.map((url, index) => ({ url, order: index })),
+        },
+      },
     });
   }
 
@@ -242,16 +355,34 @@ async function main() {
   // re-running `prisma db seed` would duplicate the roster on every run.
   const teamMemberCount = await prisma.teamMember.count();
   if (teamMemberCount === 0) {
-    await prisma.teamMember.createMany({ data: teamMembers });
+    console.log("Uploading team photos...");
+    const membersWithPhotos = await Promise.all(
+      teamMembers.map(async ({ pravatarImg, ...member }) => {
+        const photoUrl = await fetchAndUploadImage(
+          `https://i.pravatar.cc/500?img=${pravatarImg}`,
+          `seed/team/${member.name.toLowerCase().replace(/\s+/g, "-")}.jpg`
+        );
+        return { ...member, photoUrl };
+      })
+    );
+    await prisma.teamMember.createMany({ data: membersWithPhotos });
   }
 
   const now = Date.now();
   for (const [index, post] of posts.entries()) {
-    await prisma.post.upsert({
-      where: { slug: post.slug },
-      update: {},
-      create: {
+    const existing = await prisma.post.findUnique({ where: { slug: post.slug } });
+    if (existing) continue;
+
+    console.log(`Uploading cover image for post: ${post.title}`);
+    const coverImageUrl = await fetchAndUploadImage(
+      `https://picsum.photos/id/${postCoverIds[post.slug] ?? 1048}/1200/675`,
+      `seed/posts/${post.slug}.jpg`
+    );
+
+    await prisma.post.create({
+      data: {
         ...post,
+        coverImageUrl,
         status: "PUBLISHED",
         // Stagger publish dates so the most "recent" post is first, like the
         // original hardcoded list, without every seeded post sharing one timestamp.
